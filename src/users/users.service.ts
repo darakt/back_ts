@@ -43,9 +43,15 @@ export class UsersService {
     return result;
   }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} user`;
-  // }
+  async findOneByUsername(login: string): Promise<any> {
+    console.log('findOne');
+    console.log(login);
+    console.log({ login });
+    const people = await this.userModel.find({ login });
+    console.log(people);
+    console.log('end fndOne');
+    return this.userModel.find({ login });
+  }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const job = async () => {
