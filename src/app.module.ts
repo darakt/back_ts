@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -7,9 +7,9 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    UsersModule,
+    forwardRef(() => UsersModule),
     MongooseModule.forRoot('mongodb://user:user@database:27017/aDatabase'),
-    AuthModule,
+    forwardRef(() => AuthModule),
   ],
   controllers: [AppController],
   providers: [AppService],

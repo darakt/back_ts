@@ -1,12 +1,12 @@
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { User } from './interfaces/user.interface';
-
+import { AuthService } from 'src/auth/auth.service';
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private userModel: Model<User>) {}
@@ -15,7 +15,6 @@ export class UsersService {
     const updator = await this.userModel.findOne({
       userId: payload.askedBy,
     });
-    console.log(updator);
     if (updator && updator.isAdmin !== null && updator.isAdmin) {
       const result = await job();
       return result ? result : { msg: true };
@@ -25,7 +24,6 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const job = async () => {
-      console.log(createUserDto);
       delete createUserDto.askedBy;
       await this.userModel.create(createUserDto);
       return false;
@@ -43,14 +41,9 @@ export class UsersService {
     return result;
   }
 
-  async findOneByUsername(login: string): Promise<any> {
-    console.log('findOne');
-    console.log(login);
-    console.log({ login });
-    const people = await this.userModel.find({ login });
-    console.log(people);
-    console.log('end fndOne');
-    return this.userModel.find({ login });
+  async findOneByUsername(username: string): Promise<any> {
+    const people = await this.userModel.find({ username });
+    return this.userModel.find({ username });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

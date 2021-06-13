@@ -1,7 +1,7 @@
 export class CreateUserDto {
   userId: string;
   isAdmin: boolean;
-  login: string;
+  username: string;
   password: string;
   askedBy: string;
 }

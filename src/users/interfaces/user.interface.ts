@@ -1,7 +1,7 @@
 export interface User extends Document {
   userId: string;
   isAdmin?: boolean;
-  login?: string;
+  username?: string;
   password?: string;
   askedBy?: string;
 }

@@ -5,6 +5,6 @@ import { Document } from 'mongoose';
 export const UserSchema = new mongoose.Schema({
   userId: String,
   isAdmin: Boolean,
-  login: String,
+  username: String,
   password: String,
 });

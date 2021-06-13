@@ -25,21 +25,21 @@ db.createCollection('comments');
 db.users.insertOne({
   userId: '1',
   isAdmin: true,
-  login: 'first',
+  username: 'first',
   password: 'azerty',
 });
 
 db.users.insertOne({
   userId: '2',
   isAdmin: false,
-  login: 'second',
+  username: 'second',
   password: 'azerty',
 });
 
 db.users.insertOne({
   userId: '3',
   isAdmin: false,
-  login: 'third',
+  username: 'third',
   password: 'azerty',
 });
 
