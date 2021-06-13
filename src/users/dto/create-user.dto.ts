@@ -3,5 +3,7 @@ export class CreateUserDto {
   isAdmin: boolean;
   username: string;
   password: string;
+  userUsername: string;
+  userPassword: string;
   askedBy: string;
 }

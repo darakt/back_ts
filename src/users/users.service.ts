@@ -25,7 +25,12 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const job = async () => {
       delete createUserDto.askedBy;
-      await this.userModel.create(createUserDto);
+      await this.userModel.create({
+        userId: createUserDto.userId,
+        isAdmin: createUserDto.isAdmin,
+        username: createUserDto.userUsername,
+        password: createUserDto.userPassword,
+      });
       return false;
     };
     const result = await this.isAdmin(createUserDto, job);
@@ -42,8 +47,7 @@ export class UsersService {
   }
 
   async findOneByUsername(username: string): Promise<any> {
-    const people = await this.userModel.find({ username });
-    return this.userModel.find({ username });
+    return this.userModel.find({ login: username });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
