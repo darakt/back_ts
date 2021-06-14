@@ -12,12 +12,14 @@ export class UsersService {
   constructor(@InjectModel('User') private userModel: Model<User>) {}
 
   async isAdmin(payload, job) {
-    const updator = await this.userModel.findOne({
-      userId: payload.askedBy,
-    });
+    const updator = await this.userModel
+      .findOne({
+        userId: payload.askedBy,
+      })
+      .exec();
     if (updator && updator.isAdmin !== null && updator.isAdmin) {
       const result = await job();
-      return result; // no error management
+      return result;
     }
     return { msg: 'Not an admin' };
   }
@@ -32,17 +34,14 @@ export class UsersService {
         password: createUserDto.userPassword,
       });
     };
-    const result = await this.isAdmin(createUserDto, job);
-    if (result.msg === true) return `This action adds a new user`;
-    return result;
+    return await this.isAdmin(createUserDto, job);
   }
 
   async findAll(getUserDto: GetUserDto): Promise<User[]> {
     const job = async () => {
-      return await this.userModel.find();
+      return await this.userModel.find().exec();
     };
-    const result = await this.isAdmin(getUserDto, job);
-    return result;
+    return await this.isAdmin(getUserDto, job);
   }
 
   async findOneByUsername(username: string): Promise<any> {
@@ -51,23 +50,30 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const job = async () => {
+      const updated = { ...updateUserDto };
+      delete updated.username;
+      delete updated.password;
+      delete updated.askedBy;
+      if (updated.userUsername) {
+        updated.username = updated.userUsername;
+        delete updated.userUsername;
+      }
+      if (updated.userPassword) {
+        updated.password = updateUserDto.userPassword;
+        delete updated.userPassword;
+      }
       const foo = await this.userModel
-        .updateOne({ userId: updateUserDto.userId }, { $set: updateUserDto })
+        .updateOne({ userId: id }, { $set: updated })
         .exec();
-      console.log(foo);
       return foo;
     };
-    const result = await this.isAdmin(updateUserDto, job);
-    if (result.msg === true) return `This action update a #${id} user`;
-    return result;
+    return await this.isAdmin(updateUserDto, job);
   }
 
   async remove(id: string, deleteUserDto: DeleteUserDto) {
     const job = async () => {
       return await this.userModel.deleteOne({ userId: id });
     };
-    const result = await this.isAdmin(deleteUserDto, job);
-    if (result.msg === true) return `This action removes a #${id} user`;
-    return result;
+    return await this.isAdmin(deleteUserDto, job);
   }
 }

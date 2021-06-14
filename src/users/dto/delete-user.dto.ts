@@ -1,4 +1,5 @@
 export class DeleteUserDto {
-  userId: string;
   askedBy: string;
+  username: string;
+  password: string;
 }

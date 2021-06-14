@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
 import { User } from './interfaces/user.interface';
 import { UserDocument } from './interfaces/user-document.interface';
-import { Model, Query } from 'mongoose';
+import { Model, mongo, Query } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
 import { GetUserDto } from './dto/get-user.dto';
 import { createMock } from '@golevelup/nestjs-testing';
@@ -93,12 +93,22 @@ describe.only('UsersService', () => {
       exec: jest.fn().mockResolvedValueOnce(usersDocArray),
     } as any);
 
-    const isAdmin = jest.fn().mockImplementation((payload, job) => {
-      return usersArray;
-    });
-    service.isAdmin = isAdmin.bind(service);
+    jest.spyOn(model, 'findOne').mockReturnValueOnce(
+      createMock<any>({ // did not want <Query<UserDocument, UserDocument>>, after 2H I went forward
+        exec: jest.fn().mockResolvedValueOnce(
+          mockUserDoc({
+            username: 'first',
+            password: 'azerty',
+            isAdmin: true,
+            userId: '1',
+          }),
+        ),
+      }),
+    );
     const payload = {
       askedBy: '1',
+      username: 'first',
+      password: 'azerty',
     };
     const users = await service.findAll(payload);
     expect(users).toEqual(usersArray);
@@ -125,14 +135,14 @@ describe.only('UsersService', () => {
     );
     jest.spyOn(model, 'findOne').mockReturnValueOnce(
       createMock<any>({ // did not want <Query<UserDocument, UserDocument>>, after 2H I went forward
-        exec: jest.fn().mockResolvedValueOnce([
+        exec: jest.fn().mockResolvedValueOnce(
           mockUserDoc({
             username: 'first',
             password: 'azerty',
             isAdmin: true,
             userId: '1',
           }),
-        ]),
+        ),
       }),
     );
     const newUser = await service.create({
@@ -148,21 +158,22 @@ describe.only('UsersService', () => {
   });
 
   it('should update a user successfully', async () => {
+    const mongoAnswer = { n: 1, nModified: 1, ok: 1 };
     jest.spyOn(model, 'updateOne').mockReturnValueOnce(
       createMock<any>({
-        exec: jest.fn().mockResolvedValueOnce({}),
+        exec: jest.fn().mockResolvedValueOnce(mongoAnswer), // no exec on findOneAndUpdate???
       }),
     );
     jest.spyOn(model, 'findOne').mockReturnValueOnce(
       createMock<any>({ // did not want <Query<UserDocument, UserDocument>>, after 2H I went forward
-        exec: jest.fn().mockResolvedValueOnce([
+        exec: jest.fn().mockResolvedValueOnce(
           mockUserDoc({
             username: 'first',
             password: 'azerty',
             isAdmin: true,
             userId: '1',
           }),
-        ]),
+        ),
       }),
     );
     const result = await service.update('3', {
@@ -174,7 +185,102 @@ describe.only('UsersService', () => {
       username: 'first',
       password: 'azerty',
     });
-    console.log(result);
-    expect(result).toEqual('e');
+    expect(result).toEqual(mongoAnswer);
+  });
+
+  it('should delete a user successfully', async () => {
+    const mongoAnswer = { acknowledged: true, deletedCount: 1 };
+    jest.spyOn(model, 'deleteOne').mockResolvedValueOnce(mongoAnswer as any);
+    jest.spyOn(model, 'findOne').mockReturnValueOnce(
+      createMock<any>({ // did not want <Query<UserDocument, UserDocument>>, after 2H I went forward
+        exec: jest.fn().mockResolvedValueOnce(
+          mockUserDoc({
+            username: 'first',
+            password: 'azerty',
+            isAdmin: true,
+            userId: '1',
+          }),
+        ),
+      }),
+    );
+    expect(
+      await service.remove('an id', {
+        askedBy: '1',
+        username: 'first',
+        password: 'azerty',
+      }),
+    ).toEqual(mongoAnswer);
+  });
+
+  it('should not delete a user if id incorrect', async () => {
+    const mongoAnswer = { acknowledged: true, deletedCount: 0 };
+    jest.spyOn(model, 'deleteOne').mockResolvedValueOnce(mongoAnswer as any);
+    jest.spyOn(model, 'findOne').mockReturnValueOnce(
+      createMock<any>({ // did not want <Query<UserDocument, UserDocument>>, after 2H I went forward
+        exec: jest.fn().mockResolvedValueOnce(
+          mockUserDoc({
+            username: 'first',
+            password: 'azerty',
+            isAdmin: true,
+            userId: '1',
+          }),
+        ),
+      }),
+    );
+    expect(
+      await service.remove('an id', {
+        askedBy: '1',
+        username: 'first',
+        password: 'azerty',
+      }),
+    ).toEqual(mongoAnswer);
+  });
+
+  it('Should confirm that a user is an admin', async () => {
+    jest.spyOn(model, 'findOne').mockReturnValueOnce(
+      createMock<any>({ // did not want <Query<UserDocument, UserDocument>>, after 2H I went forward
+        exec: jest.fn().mockResolvedValueOnce(
+          mockUserDoc({
+            username: 'first',
+            password: 'azerty',
+            isAdmin: true,
+            userId: '1',
+          }),
+        ),
+      }),
+    );
+    const payload = {
+      askedBy: '1',
+    }
+    const job = () => ({
+      msg: "isAdmin's value is true",
+    });
+    const user = await service.isAdmin(payload, job);
+    await expect(user).toEqual({
+      msg: "isAdmin's value is true",
+    });
+  });
+
+  it('Should confirm that a user is not an admin', async () => {
+    jest.spyOn(model, 'findOne').mockReturnValueOnce(
+      createMock<any>({ // did not want <Query<UserDocument, UserDocument>>, after 2H I went forward
+        exec: jest.fn().mockResolvedValueOnce(
+          mockUserDoc({
+            username: 'second',
+            password: 'azerty',
+            isAdmin: false,
+            userId: '2',
+          }),
+        ),
+      }),
+    );
+    const payload = {
+      askedBy: '1',
+    }
+    const job = () => ({
+      msg: "isAdmin's value is true",
+    });
+    const user = await service.isAdmin(payload, job);
+    await expect(user).toEqual({ msg: 'Not an admin' });
   });
 });
