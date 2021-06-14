@@ -1,4 +1,4 @@
-export interface User {
+export interface UserDocument extends Document {
   userId: string;
   isAdmin?: boolean;
   username?: string;

@@ -16,7 +16,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthService } from 'src/auth/auth.service';
+import { AuthService } from '../auth/auth.service';
 @Controller('users')
 export class UsersController {
   constructor(
@@ -37,11 +37,11 @@ export class UsersController {
     return this.usersService.findAll(getUserDto);
   }
 
-  @UseGuards(AuthGuard('local'))
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOneByUsername(id);
-  }
+  // @UseGuards(AuthGuard('local'))
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.usersService.findOneByUsername(id);
+  // }
 
   @UseGuards(AuthGuard('local'))
   @Patch(':id')
