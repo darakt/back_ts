@@ -17,6 +17,8 @@ import { DeleteUserDto } from './dto/delete-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../auth/auth.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+
 @Controller('users')
 export class UsersController {
   constructor(
@@ -25,31 +27,25 @@ export class UsersController {
     private readonly usersService: UsersService,
   ) {}
 
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Body() getUserDto: GetUserDto) {
     return this.usersService.findAll(getUserDto);
   }
 
-  // @UseGuards(AuthGuard('local'))
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.usersService.findOneByUsername(id);
-  // }
-
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string, @Body() deleteUserDto: DeleteUserDto) {
     return this.usersService.remove(id, deleteUserDto);

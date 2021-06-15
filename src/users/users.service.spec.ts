@@ -5,26 +5,26 @@ import { User } from './interfaces/user.interface';
 import { UserDocument } from './interfaces/user-document.interface';
 import { Model, mongo, Query } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
-import { GetUserDto } from './dto/get-user.dto';
 import { createMock } from '@golevelup/nestjs-testing';
+import { JwtService } from '@nestjs/jwt';
 
-const mockUser = (
+export const mockUser = (
   username = 'second',
   password = 'azerty',
   isAdmin = false,
-  userId = '2',
+  _id = '2',
 ): User => ({
   username,
   password,
   isAdmin,
-  userId,
+  _id,
 });
 
 export const mockUserDoc = (mock?: Partial<User>): Partial<UserDocument> => ({
   username: mock?.username || 'second',
   password: mock?.password || 'azerty',
   isAdmin: mock?.isAdmin || false,
-  userId: mock?.userId || '2',
+  _id: mock?._id || '2',
 });
 
 const usersArray = [
@@ -38,14 +38,14 @@ const usersDocArray = [
     username: 'first',
     password: 'azerty',
     isAdmin: true,
-    userId: '1',
+    _id: '1',
   }),
   mockUserDoc(),
   mockUserDoc({
     username: 'third',
     password: 'azerty',
     isAdmin: false,
-    userId: '3',
+    _id: '3',
   }),
 ];
 
@@ -59,6 +59,12 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         AuthService,
+        {
+          provide: JwtService,
+          useValue: {
+            sign: () => '',
+          },
+        },
         {
           provide: getModelToken('User'),
           useValue: {
@@ -100,15 +106,13 @@ describe('UsersService', () => {
             username: 'first',
             password: 'azerty',
             isAdmin: true,
-            userId: '1',
+            _id: '1',
           }),
         ),
       }),
     );
     const payload = {
       askedBy: '1',
-      username: 'first',
-      password: 'azerty',
     };
     const users = await service.findAll(payload);
     expect(users).toEqual(usersArray);
@@ -130,7 +134,7 @@ describe('UsersService', () => {
         username: 'fourth',
         password: 'azerty',
         isAdmin: false,
-        userId: '4',
+        _id: '4',
       }),
     );
     jest.spyOn(model, 'findOne').mockReturnValueOnce(
@@ -140,19 +144,16 @@ describe('UsersService', () => {
             username: 'first',
             password: 'azerty',
             isAdmin: true,
-            userId: '1',
+            _id: '1',
           }),
         ),
       }),
     );
     const newUser = await service.create({
-      userUsername: 'fourth',
-      userPassword: 'azerty',
-      isAdmin: false,
-      userId: '4',
-      askedBy: '1',
-      username: 'first',
+      username: 'fourth',
       password: 'azerty',
+      isAdmin: false,
+      askedBy: '1',
     });
     expect(newUser).toEqual(mockUser('fourth', 'azerty', false, '4'));
   });
@@ -171,19 +172,16 @@ describe('UsersService', () => {
             username: 'first',
             password: 'azerty',
             isAdmin: true,
-            userId: '1',
+            _id: '1',
           }),
         ),
       }),
     );
     const result = await service.update('3', {
-      userUsername: 'third',
-      userPassword: 'azerty',
-      isAdmin: false,
-      userId: '3',
-      askedBy: '1',
-      username: 'first',
+      username: 'third',
       password: 'azerty',
+      isAdmin: false,
+      askedBy: '1',
     });
     expect(result).toEqual(mongoAnswer);
   });
@@ -198,7 +196,7 @@ describe('UsersService', () => {
             username: 'first',
             password: 'azerty',
             isAdmin: true,
-            userId: '1',
+            _id: '1',
           }),
         ),
       }),
@@ -206,8 +204,6 @@ describe('UsersService', () => {
     expect(
       await service.remove('an id', {
         askedBy: '1',
-        username: 'first',
-        password: 'azerty',
       }),
     ).toEqual(mongoAnswer);
   });
@@ -222,7 +218,7 @@ describe('UsersService', () => {
             username: 'first',
             password: 'azerty',
             isAdmin: true,
-            userId: '1',
+            _id: '1',
           }),
         ),
       }),
@@ -230,8 +226,6 @@ describe('UsersService', () => {
     expect(
       await service.remove('an id', {
         askedBy: '1',
-        username: 'first',
-        password: 'azerty',
       }),
     ).toEqual(mongoAnswer);
   });
@@ -244,7 +238,7 @@ describe('UsersService', () => {
             username: 'first',
             password: 'azerty',
             isAdmin: true,
-            userId: '1',
+            _id: '1',
           }),
         ),
       }),
@@ -269,7 +263,7 @@ describe('UsersService', () => {
             username: 'second',
             password: 'azerty',
             isAdmin: false,
-            userId: '2',
+            _id: '2',
           }),
         ),
       }),

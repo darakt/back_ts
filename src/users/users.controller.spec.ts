@@ -7,25 +7,26 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { createMock } from '@golevelup/nestjs-testing';
 import { mockUserDoc } from './users.service.spec';
+import { JwtService } from '@nestjs/jwt';
 
 const listOfUsers = [
   {
     username: 'first',
     password: 'azerty',
     isAdmin: true,
-    userId: '1',
+    _id: '1',
   },
   {
     username: 'second',
     password: 'azerty',
     isAdmin: false,
-    userId: '2',
+    _id: '2',
   },
   {
     username: 'third',
     password: 'azerty',
     isAdmin: true,
-    userId: '3',
+    _id: '3',
   },
 ];
 const ackDeleted = { n: 1, ok: 1, deletedCount: 1 };
@@ -35,7 +36,7 @@ const auth = {
   password: 'azerty',
 };
 const newUser = {
-  userId: '22',
+  _id: '22',
   isAdmin: false,
   username: 'foo',
   password: 'bar',
@@ -52,8 +53,14 @@ describe.only('UsersController', () => {
         AuthService,
         UsersService,
         {
+          provide: JwtService,
+          useValue: {
+            sign: () => '',
+          },
+        },
+        {
           provide: getModelToken('User'),
-          useValue: { // that part is useless, no idea why...
+          useValue: {
             create: jest.fn().mockImplementation((user: CreateUserDto) => {
               Promise.resolve({ ...user });
             }),
@@ -79,8 +86,6 @@ describe.only('UsersController', () => {
     jest.spyOn(service, 'isAdmin').mockResolvedValue(listOfUsers); // the effective mocking is that one, as this fct is one in charge of the business logic it is not a 'huge' pb, but dirty
     const result = await controller.findAll({
       askedBy: '1',
-      username: 'first',
-      password: 'azerty',
     });
     expect(result).toEqual(listOfUsers);
   });
@@ -90,40 +95,31 @@ describe.only('UsersController', () => {
       .spyOn(service, 'isAdmin')
       .mockReturnValueOnce(Promise.resolve(newUser));
     const result = await controller.create({
-      userId: '22',
       isAdmin: false,
-      username: 'root',
-      password: 'root',
-      userUsername: 'foo',
-      userPassword: 'bar',
+      username: 'foo',
+      password: 'bar',
       askedBy: '1',
     });
-    console.log(result);
     expect(result).toEqual(newUser);
   });
 
   it('Should update an user', async () => {
     const newUserDto = {
-      userId: '3',
       isAdmin: false,
-      username: 'root',
-      password: 'root',
-      userUsername: 'foo',
-      userPassword: 'bar',
+      username: 'foo',
+      password: 'bar',
       askedBy: '1',
     };
     jest
       .spyOn(service, 'isAdmin')
       .mockReturnValueOnce(Promise.resolve(newUser));
-    const result = await controller.update(newUserDto.userId, newUserDto);
+    const result = await controller.update('3', newUserDto);
     expect(result).toEqual(newUser);
   });
 
   it('Should remove an user', async () => {
     const deleteUserDto = {
       askedBy: '1',
-      username: 'root',
-      password: 'root',
     };
     jest
       .spyOn(service, 'isAdmin')

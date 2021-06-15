@@ -1,5 +1,10 @@
 db = new Mongo('localhost:27017').getDB('aDatabase');
 admin = new Mongo('localhost:27017').getDB('admin');
+const randomDate = (start, end) => {
+  return new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+  );
+};
 
 admin.createUser({
   user: 'admin',
@@ -23,21 +28,21 @@ db.createCollection('users');
 db.createCollection('comments');
 
 db.users.insertOne({
-  userId: '1',
+  _id: ObjectId('60c8989238d29f00f1cb8834'),
   isAdmin: true,
   username: 'first',
   password: 'azerty',
 });
 
 db.users.insertOne({
-  userId: '2',
+  _id: ObjectId('60c8989238d29f10f1cb8834'),
   isAdmin: false,
   username: 'second',
   password: 'azerty',
 });
 
 db.users.insertOne({
-  userId: '3',
+  _id: ObjectId('60c8989238d29f0011cb8834'),
   isAdmin: false,
   username: 'third',
   password: 'azerty',
@@ -45,41 +50,46 @@ db.users.insertOne({
 
 db.comments.insertMany([
   {
-    commentId: '1',
-    userId: '2',
-    orderId: '3',
-    georeferenceId: '4',
+    _id: ObjectId('60c8985638d29f10f1cb8834'),
+    userId: ObjectId('60c8989238d29f0011cb8834'),
+    orderId: ObjectId('3'),
+    georeferenceId: ObjectId('4'),
     channel: '2o3g4',
     text: 'this is a first comment',
+    timeStamp: randomDate(new Date(2021, 0, 1), new Date()),
   },
   {
-    commentId: '2',
-    userId: '2',
-    georeferenceId: '4',
+    _id: ObjectId('60c8985638d29f10f1cb8835'),
+    userId: ObjectId('60c8989238d29f10f1cb8834'),
+    georeferenceId: ObjectId('4'),
     channel: '2g4',
     text: 'this is a second comment',
+    timeStamp: randomDate(new Date(2021, 0, 1), new Date()),
   },
   {
-    commentId: '3',
-    userId: '2',
-    orderId: '4',
-    georeferenceId: '4',
+    _id: ObjectId('60c8985638d29f10f1cb8844'),
+    userId: ObjectId('60c8989238d29f10f1cb8834'),
+    orderId: ObjectId('4'),
+    georeferenceId: ObjectId('4'),
     channel: '2o4g4',
     text: 'this is a third comment',
+    timeStamp: randomDate(new Date(2021, 0, 1), new Date()),
   },
   {
-    commentId: '4',
-    userId: '2',
-    orderId: '4',
+    commentId: ObjectId('60c8985638d29f10f1cb8934'),
+    userId: ObjectId('60c8989238d29f10f1cb8834'),
+    orderId: ObjectId('4'),
     channel: '2o4',
     text: 'this is a fourth comment',
+    timeStamp: randomDate(new Date(2021, 0, 1), new Date()),
   },
   {
-    commentId: '5',
-    userId: '2',
-    orderId: '4',
-    georeferenceId: '4',
+    commentId: ObjectId('60c8985638d29f10f1ca8834'),
+    userId: ObjectId('60c8989238d29f10f1cb8834'),
+    orderId: ObjectId('4'),
+    georeferenceId: ObjectId('4'),
     channel: '2o4g4',
     text: 'this is a fifth comment',
+    timeStamp: randomDate(new Date(2021, 0, 1), new Date()),
   },
 ]);

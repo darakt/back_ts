@@ -7,6 +7,8 @@ import { DeleteUserDto } from './dto/delete-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { UserDocument as User } from './interfaces/user-document.interface';
 import { AuthService } from 'src/auth/auth.service';
+import { ObjectId } from 'mongodb';
+
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private userModel: Model<User>) {}
@@ -14,7 +16,7 @@ export class UsersService {
   async isAdmin(payload, job) {
     const updator = await this.userModel
       .findOne({
-        userId: payload.askedBy,
+        _id: ObjectId(payload.askedBy),
       })
       .exec();
     if (updator && updator.isAdmin !== null && updator.isAdmin) {
@@ -26,13 +28,8 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const job = async () => {
-      delete createUserDto.askedBy;
-      return await this.userModel.create({
-        userId: createUserDto.userId,
-        isAdmin: createUserDto.isAdmin,
-        username: createUserDto.userUsername,
-        password: createUserDto.userPassword,
-      });
+      const newUser = { ...createUserDto };
+      return await this.userModel.create(newUser);
     };
     return await this.isAdmin(createUserDto, job);
   }
@@ -45,25 +42,14 @@ export class UsersService {
   }
 
   async findOneByUsername(username: string): Promise<any> {
-    return await this.userModel.find({ login: username }).exec();
+    return await this.userModel.find({ username }).exec(); // username are unique
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const job = async () => {
       const updated = { ...updateUserDto };
-      delete updated.username;
-      delete updated.password;
-      delete updated.askedBy;
-      if (updated.userUsername) { // add test for those cases => same test as update but with different inputs
-        updated.username = updated.userUsername;
-        delete updated.userUsername;
-      }
-      if (updated.userPassword) {
-        updated.password = updateUserDto.userPassword;
-        delete updated.userPassword;
-      }
       const foo = await this.userModel
-        .updateOne({ userId: id }, { $set: updated })
+        .updateOne({ _id: ObjectId(id) }, { $set: updated })
         .exec();
       return foo;
     };
@@ -72,7 +58,7 @@ export class UsersService {
 
   async remove(id: string, deleteUserDto: DeleteUserDto) {
     const job = async () => {
-      return await this.userModel.deleteOne({ userId: id });
+      return await this.userModel.deleteOne({ _id: ObjectId(id) });
     };
     return await this.isAdmin(deleteUserDto, job);
   }
