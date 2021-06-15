@@ -54,7 +54,7 @@ export class UsersService {
       delete updated.username;
       delete updated.password;
       delete updated.askedBy;
-      if (updated.userUsername) {
+      if (updated.userUsername) { // add test for those cases => same test as update but with different inputs
         updated.username = updated.userUsername;
         delete updated.userUsername;
       }

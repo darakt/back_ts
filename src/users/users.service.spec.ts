@@ -20,7 +20,7 @@ const mockUser = (
   userId,
 });
 
-const mockUserDoc = (mock?: Partial<User>): Partial<UserDocument> => ({
+export const mockUserDoc = (mock?: Partial<User>): Partial<UserDocument> => ({
   username: mock?.username || 'second',
   password: mock?.password || 'azerty',
   isAdmin: mock?.isAdmin || false,
@@ -49,7 +49,7 @@ const usersDocArray = [
   }),
 ];
 
-describe.only('UsersService', () => {
+describe('UsersService', () => {
   let service: UsersService;
   let model: Model<UserDocument>;
   let auth: AuthService;
