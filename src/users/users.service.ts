@@ -16,7 +16,7 @@ export class UsersService {
   async isAdmin(payload, job) {
     const updator = await this.userModel
       .findOne({
-        _id: ObjectId(payload.askedBy),
+        _id: new ObjectId(payload.askedBy),
       })
       .exec();
     if (updator && updator.isAdmin !== null && updator.isAdmin) {
@@ -49,7 +49,7 @@ export class UsersService {
     const job = async () => {
       const updated = { ...updateUserDto };
       const foo = await this.userModel
-        .updateOne({ _id: ObjectId(id) }, { $set: updated })
+        .updateOne({ _id: new ObjectId(id) }, { $set: updated })
         .exec();
       return foo;
     };
@@ -58,7 +58,7 @@ export class UsersService {
 
   async remove(id: string, deleteUserDto: DeleteUserDto) {
     const job = async () => {
-      return await this.userModel.deleteOne({ _id: ObjectId(id) });
+      return await this.userModel.deleteOne({ _id: new ObjectId(id) });
     };
     return await this.isAdmin(deleteUserDto, job);
   }

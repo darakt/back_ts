@@ -10,7 +10,7 @@ export class ChannelService {
   ) {}
 
   async findAll(channel: string) {
-    return await this.commentsModel.find({ channelId: ObjectId(channel) }).exec();
+    return await this.commentsModel.find({ channelId: channel }).exec();
   }
 
   async findAllForAUser(id: string) {
@@ -18,6 +18,6 @@ export class ChannelService {
   }
 
   async removeAWholeChannel(channel: string) {
-    return await this.commentsModel.deleteMany({ channelId: ObjectId(channel) }).exec();
+    return await this.commentsModel.deleteMany({ channelId: channel }).exec();
   }
 }
