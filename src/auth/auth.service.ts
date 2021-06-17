@@ -14,15 +14,14 @@ export class AuthService {
     const [user] = await this.usersService.findOneByUsername(username);
     if (user && user.password === pass) {
       // should use hash
-      const { password, ...result } = user;
-      return result;
+      delete user.password;
+      return user;
     }
     return null;
   }
 
   async login(user: any) {
     const payload = { username: user.username, sub: user.userId };
-    console.log(payload);
     return {
       access_token: this.jwtService.sign(payload),
     };

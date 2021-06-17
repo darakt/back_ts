@@ -7,7 +7,7 @@ import { AuthModule } from 'src/auth/auth.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
-    forwardRef(() => AuthModule),
+    forwardRef(() => AuthModule), //this cause otherwise it causes circular import error
   ],
   controllers: [UsersController],
   providers: [UsersService],

@@ -41,7 +41,7 @@ const newUser = {
   username: 'foo',
   password: 'bar',
 };
-describe.only('UsersController', () => {
+describe('UsersController', () => {
   let controller: UsersController;
   let service: UsersService;
   let auth: AuthService;
@@ -83,8 +83,8 @@ describe.only('UsersController', () => {
   });
 
   it('Should return all the users', async () => {
-    jest.spyOn(service, 'isAdmin').mockResolvedValue(listOfUsers); // the effective mocking is that one, as this fct is one in charge of the business logic it is not a 'huge' pb, but dirty
-    const result = await controller.findAll({
+    jest.spyOn(service, 'isAdmin').mockResolvedValue(listOfUsers); // the effective mocking is that one,
+    const result = await controller.findAll({ // as this function is the one in charge of the business logic it is not a 'huge' pb, but dirty
       askedBy: '1',
     });
     expect(result).toEqual(listOfUsers);
@@ -111,8 +111,8 @@ describe.only('UsersController', () => {
       askedBy: '1',
     };
     jest
-      .spyOn(service, 'isAdmin')
-      .mockReturnValueOnce(Promise.resolve(newUser));
+      .spyOn(service, 'isAdmin') // as I'm mocking isAdmin  the error that ObjectId is causig does not appear
+      .mockReturnValueOnce(Promise.resolve(newUser)); // the is working but the feature is not
     const result = await controller.update('3', newUserDto);
     expect(result).toEqual(newUser);
   });

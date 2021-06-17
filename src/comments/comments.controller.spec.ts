@@ -12,8 +12,6 @@ const listOfComments = [CommentMock, CommentMock];
 
 describe('CommentsController', () => {
   let controller: CommentsController;
-  let auth: AuthService;
-  let service: CommentsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -41,7 +39,7 @@ describe('CommentsController', () => {
         },
         {
           provide: getModelToken('User'),
-          useValue: { // that part is useless, no idea why...
+          useValue: {
             create: jest.fn(),
             findAll: jest.fn(),
             update: jest.fn(),
@@ -50,9 +48,6 @@ describe('CommentsController', () => {
         },
       ],
     }).compile();
-
-    auth = module.get<AuthService>(AuthService);
-    service = module.get<CommentsService>(CommentsService);
     controller = module.get<CommentsController>(CommentsController);
   });
 
@@ -62,6 +57,6 @@ describe('CommentsController', () => {
 
   it('Should return all the users', async () => {
     //jest.spyOn(service, 'findAll').mockResolvedValue(Promise.resolve(listOfComments));
-    // not working => because types
+    // not working => because types error
   });
 });

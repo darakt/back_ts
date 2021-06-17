@@ -52,7 +52,6 @@ const usersDocArray = [
 describe('UsersService', () => {
   let service: UsersService;
   let model: Model<UserDocument>;
-  let auth: AuthService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -82,7 +81,6 @@ describe('UsersService', () => {
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    auth = module.get<AuthService>(AuthService);
     model = module.get<Model<UserDocument>>(getModelToken('User'));
   });
 

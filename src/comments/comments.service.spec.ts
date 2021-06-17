@@ -2,11 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CommentsService } from './comments.service';
 import { UsersService } from '../users/users.service';
 import { AuthService } from '../auth/auth.service';
-import { Model, mongo, Query } from 'mongoose';
+import { Model } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
-import { createMock } from '@golevelup/nestjs-testing';
 import { CommentDocument } from './interfaces/comment-document.interface';
-import { UserDocument } from 'src/users/interfaces/user-document.interface';
 import { Comment } from './interfaces/comment.interface';
 import { mockUser } from '../users/users.service.spec';
 import { JwtService } from '@nestjs/jwt';
@@ -46,10 +44,7 @@ export const commentDocArray = [
 ];
 
 describe('CommentsService', () => {
-  let user: UsersService;
   let model: Model<CommentDocument>;
-  let modelUser: Model<UserDocument>;
-  let auth: AuthService;
   let service: CommentsService;
 
   beforeEach(async () => {
@@ -93,10 +88,7 @@ describe('CommentsService', () => {
       ],
     }).compile();
 
-    user = module.get<UsersService>(UsersService);
-    auth = module.get<AuthService>(AuthService);
     model = module.get<Model<CommentDocument>>(getModelToken('Comments'));
-    modelUser = module.get<Model<UserDocument>>(getModelToken('User'));
     service = module.get<CommentsService>(CommentsService);
   });
 
